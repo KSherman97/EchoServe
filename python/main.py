@@ -152,8 +152,8 @@ def handle_client(connection, address):
                     php_socket.sendall(pack_fcgi_record(FCGI_PARAMS, 1, pack_fcgi_params(params)))
                     php_socket.sendall(pack_fcgi_record(FCGI_PARAMS, 1, b"")) # end of params
 
+                    headers_sent = False
 
-                    full_php_output = b""
                     while True:
                         # read the 8 byte header
                         header_data = php_socket.recv(8)
@@ -161,23 +161,41 @@ def handle_client(connection, address):
                             break
 
                         # unpack
-                        _, type, _, content_len, padding_len, _ = struct.unpack("!BBHHBB", header_data)
+                        _, r_type, _, content_len, padding_len, _ = struct.unpack("!BBHHBB", header_data)
 
                         # read the content based on the len in the header
                         if content_len > 0:
-                            full_php_output += php_socket.recv(content_len)
+                            payload = php_socket.recv(content_len)
+
+                            if not headers_sent:
+                                if b"\r\n\r\n" in payload:
+                                    php_headers, php_body = payload.split(b"\r\n\r\n", 1)
+
+                                    # send the real HTTP response start
+                                    connection.sendall(b"HTTP/1.1 200 OK\r\n")
+                                    connection.sendall(php_headers + b"\r\n")
+                                    connection.sendall(b"Transfer-Encoding: chunked\r\n")
+                                    connection.sendall(b"\r\n")
+
+                                    if php_body:
+                                        chunk_h = f"{hex(len(php_body))[2:]}\r\n".encode()
+                                        connection.sendall(chunk_h + php_body + b"\r\n")
+
+                                    headers_sent = True
+
+                            else:
+                                chunk_h = f"{hex(content_len)[2:]}\r\n".encode()
+                                connection.sendall(chunk_h + payload + b"\r\n")
 
                         # skip padding bytes
                         if padding_len > 0:
                             php_socket.recv(padding_len)
 
                         # if type is FCGI_END_REQ we are done
-                        if type == 3:
+                        if r_type == 3:
                             break
-
-                    # send the http header + php output
-                    http_status_header = b"HTTP/1.1 200 OK\r\n"
-                    connection.sendall(http_status_header + full_php_output)
+                    
+                    connection.sendall(b"0\r\n\r\n")
             except Exception as e:
                 logger.error(f"PHP-FPM Connection Error: {e}")
                 connection.sendall(b"HTTP/1.1 502 Bad Gateway\r\n\r\nPHP-FPM Error")

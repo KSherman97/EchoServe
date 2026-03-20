@@ -1,5 +1,6 @@
 import socket as skt
 import os
+import mimetypes
 
 HOST = "127.0.0.1"
 PORT = 8080
@@ -12,13 +13,21 @@ Currently a single connection can be made and a response packet will be sent
 
 def file_mapper(path):
     root_dir = os.getcwd() # get the current working directory
-    web_dir = root_dir + "/web/"
+    web_dir = os.path.join(root_dir, "web")
 
-    if path[-1] == "/":
-        path = path + "index.html"
+    requested_path = path.lstrip("/")
+    full_path = os.path.abspath(os.path.join(web_dir, requested_path))
 
-    file_path = web_dir + path
-    return file_path
+    # sanity check: Don't allow a path outside of our designated web path
+    if not full_path.startswith(os.path.abspath(web_dir)):
+        # fallback to index or raise error
+        full_path = os.path.join(full_path, "index.html")
+
+    if os.path.isdir(full_path):
+        full_path = os.path.join(full_path, "index.html")
+
+    file_type = mimetypes.guess_type(full_path)
+    return full_path, file_type
 
 """
 Takes in a request as a argument
@@ -41,7 +50,7 @@ def parse_request(request):
     Body (page, etc.)
 """
 def response_builder(path):
-    file = file_mapper(path)
+    file, file_type = file_mapper(path)
 
     # We need to open the file contents in binary mode due to the nature of HTTP
     try:
@@ -51,12 +60,13 @@ def response_builder(path):
     except FileNotFoundError:
         file_contents = b"<h1>404 File Not Found</h1>"
         status = "400 Not Found"
+        file_type = "text/html"
 
     # construct the headers
     # use text/html for .html files, but will need to integrate mime-types later
     header = (
         f"HTTP/1.1 {status}\r\n"
-        "Content-Type: text/html\r\n"
+        f"Content-Type: {file_type}\r\n"
         f"Content-Length: {len(file_contents)}\r\n"
         "Connection: close\r\n"
         "\r\n"
@@ -82,6 +92,9 @@ def main():
             with connection:
                 print(f"Connected by {address}")
 
+                # right now this is lazy
+                # we need to implement chunking to prevent overloading 
+                # the socket
                 data = connection.recv(1024)
                 if data:
                     method, path, headers = parse_request(data)

@@ -1,0 +1,9 @@
+{
+    "HOST": "127.0.0.1",
+    "PORT": 8080,
+    "CHUNK_SIZE": 8192,
+    "WEB_ROOT": "web",
+    "DEFAULT_PAGE": "index.html",
+    "ERROR_404": "404.html",
+    "BACKLOG_CLIENTS": 128
+}

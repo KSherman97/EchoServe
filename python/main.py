@@ -23,20 +23,23 @@ TODO:
 [x] We need to implement chunking (standard is 4kb or 8kb)
 [x] We will need to implement some form of multithreading as well
 [x] We need to implement logging
-[ ] We need to load from a config
+[x] We need to load from a config
 
 [ ] Investigate using Async IO over threads (for now threads are fine)
 [ ] As it stands too many items are hard coded
 [ ] We need to allow default pages to be set for error handling
 [ ] We need routing logic, IE. .php serves php pages and everything else is static
 """
+CONFIG = {}
+HOST = None
+PORT = None
+CHUNK_SIZE = None
+BACKLOG = None
+WEB_ROOT = None
+DEFAULT_PAGE = "index.html"
+ERROR_404 = "404.html"
 
 
-HOST = "127.0.0.1"
-PORT = 8080
-CHUNK_SIZE = 8000
-RESPONSE_404 = b"<h1>404 File Not Found</h1>"
-CONFIG = None
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -54,6 +57,9 @@ process: socket() -> bind() -> listen() -> accept
 Currently a single connection can be made and a response packet will be sent
 """
 
+"""
+Try to load the config file, but set sensible defaults just in case
+"""
 def load_config():
     base_path = os.getcwd()
     config_path = os.path.join(base_path, "config.json")
@@ -71,8 +77,6 @@ def load_config():
         with open(config_path, "r") as config:
             user_config = json.load(config)
             defaults.update(user_config)
-        return defaults
-    
     return defaults
 
 """
@@ -85,21 +89,33 @@ def handle_client(connection, address):
         connection.settimeout(10)
         data = connection.recv(1024)
 
-        if data:
-            method, path, headers = parse_request(data)
-            header, body_path = response_builder(path)
+        if not data:
+            return
+        
+        method, path, _ = parse_request(data)
+        response_type, target, extra = response_builder(path)
 
-            connection.sendall(header)
-            chunk_file(body_path, connection)
-
+        if response_type == "STATIC_CHUNK":
+            connection.sendall(extra) # extra is the header
+            chunk_file(target, connection)
             connection.sendall(b'0\r\n\r\n')
+
+        elif response_type == "PHP_EXEC":
+            # PHP CGI logic will go here
+            logger.info(f"Attempting to execute PHP: {target}")
+            message = b'HTTP/1.1 501 Not Implemented\r\n\r\nPHP coming soon'
+            connection.sendall(message)
+
+        elif response_type == "DIRECT_RESPONSE":
+            # all hardcoded fallbacks will live heer
+            connection.sendall(b"HTTP/1.1 404 Not Found\r\n\r\n" + target)
 
     except Exception as e:
         logger.error(f"Error handling client {address}: {e}")
+
     finally:
         connection.close()
         logger.info(f"Close connection from {address}")
-
 
 """
 file_mapper is tasked with mapping a url request path to a physical dir
@@ -108,7 +124,7 @@ the path and the type
 """
 def file_mapper(path):
     root_dir = os.getcwd() # get the current working directory
-    web_dir = os.path.join(root_dir, "web")
+    web_dir = os.path.join(root_dir, WEB_ROOT)
 
     requested_path = path.lstrip("/")
     full_path = os.path.abspath(os.path.join(web_dir, requested_path))
@@ -116,10 +132,11 @@ def file_mapper(path):
     # sanity check: Don't allow a path outside of our designated web path
     if not full_path.startswith(os.path.abspath(web_dir)):
         # fallback to index or raise error
-        full_path = os.path.join(full_path, "index.html")
+        full_path = os.path.join(web_dir, DEFAULT_PAGE)
 
+    # if the path is a directory, no file specified then we will return the default page
     if os.path.isdir(full_path):
-        full_path = os.path.join(full_path, "index.html")
+        full_path = os.path.join(full_path, DEFAULT_PAGE)
 
     file_type = mimetypes.guess_type(full_path)
     return full_path, file_type
@@ -153,14 +170,20 @@ def response_builder(path):
     file_type = file_type_tuple[0] if file_type_tuple[0] else "application/octet-stream"
     status = "200 OK"
 
+    # routing logic: check for php extension
+    if file_path.endswith(".php"):
+        return "PHP_EXEC", file_path, "text/html"
+
+    # static logic to handle missing files with config error page
     if not os.path.exists(file_path):
         status = "404 Not Found"
         file_type = "text/html"
-        file_path = os.path.join(os.getcwd(), "web", "404.html")
+        web_dir = os.path.join(os.getcwd(), WEB_ROOT)
+        file_path = os.path.join(web_dir, ERROR_404)
 
+        # absolute fallback if the 404 page is missing as well
         if not os.path.exists(file_path):
-            # may want to make this more robust in the future
-            pass
+            return "DIRECT_RESPONSE", RESPONSE_404, "text/html"
 
     # construct the headers
     # use text/html for .html files, but will need to integrate mime-types later
@@ -174,7 +197,7 @@ def response_builder(path):
     )
 
     # combine the bytes: header (encoded) + body (already in bytes format)
-    return header.encode("utf-8"), file_path # file_contents
+    return "STATIC_CHUNK", file_path, header.encode("utf-8"), # file_contents
 
 def chunk_file(full_file, connection):
     try:
@@ -219,4 +242,13 @@ def main():
 
 if __name__ == "__main__":
     CONFIG = load_config()
+
+    HOST = CONFIG.get("HOST")
+    PORT = CONFIG.get("PORT")
+    CHUNK_SIZE = CONFIG.get("CHUNK_SIZE")
+    BACKLOG = CONFIG.get("BACKLOG_CLIENTS", 5)
+    WEB_ROOT = CONFIG.get("WEB_ROOT")
+    DEFAULT_PAGE = CONFIG.get("DEFAULT_PAGE")
+    ERROR_404 = CONFIG.get("ERROR_404")
+
     main()

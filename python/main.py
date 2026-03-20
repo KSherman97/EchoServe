@@ -16,6 +16,7 @@ import socket as skt
 import mimetypes
 import logging
 import json
+import struct
 
 """
 TODO:
@@ -39,7 +40,12 @@ WEB_ROOT = None
 DEFAULT_PAGE = "index.html"
 ERROR_404 = "404.html"
 
-
+# FastCGI Constants
+FCGI_VERSION = 1
+FCGI_BEGIN_REQUEST = 1
+FCGI_PARAMS = 4
+FCGI_RESPONDER = 1
+FCGI_KEEP_CONN = 1
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(
@@ -80,6 +86,27 @@ def load_config():
     return defaults
 
 """
+Packs a standard FCGI record per the FCGI docs: 8-byte header + content
+"""
+def pack_fcgi_record(type, req_id, content):
+    length = len(content)
+    # header format - slot(bytes): Version(1), Type(1), ReqID(2), ContentLen(2), Padding(1), Reserved(1)
+    header = struct.pack("!BBHHBx", FCGI_VERSION, type, req_id, length, 0)
+    return header + content
+
+"""
+Pack name-value paris into the FastCGI format per the docs
+"""
+def pack_fcgi_params(params):
+    body = b"" # set into byte format
+    for name, value in params.items():
+        name, value = name.encode(), str(value).encode()
+        # encode lengths: assuming < 127 bytes for example
+        body += struct.pack("!BB", len(name), len(value)) + name + value
+    return body
+
+
+"""
 Run processing the connection pool in its own thread. Each connection is
 assigned its own thread to prevent blocking connections from larger files
 """
@@ -103,8 +130,57 @@ def handle_client(connection, address):
         elif response_type == "PHP_EXEC":
             # PHP CGI logic will go here
             logger.info(f"Attempting to execute PHP: {target}")
-            message = b'HTTP/1.1 501 Not Implemented\r\n\r\nPHP coming soon'
-            connection.sendall(message)
+            begin_body = struct.pack("!HB5x", FCGI_RESPONDER, FCGI_KEEP_CONN)
+
+            params = {
+                "SCRIPT_FILENAME": target,
+                "REQUEST_METHOD": method,
+                "QUERY_STRING": "",
+                "CONTENT_TYPE": "",
+                "CONTENT_LENGTH": "0",
+                "GATEWAY_INTERFACE": "CGI/1.1",
+                "REMOTE_ADDR": address[0],
+                "SERVER_PROTOCOL": "HTTP/1.1"
+            }
+
+            try:
+                with skt.socket(skt.AF_INET, skt.SOCK_STREAM) as php_socket:
+                    php_socket.connect(("127.0.0.1", 9000))
+
+                    # send records
+                    php_socket.sendall(pack_fcgi_record(FCGI_BEGIN_REQUEST, 1, begin_body))
+                    php_socket.sendall(pack_fcgi_record(FCGI_PARAMS, 1, pack_fcgi_params(params)))
+                    php_socket.sendall(pack_fcgi_record(FCGI_PARAMS, 1, b"")) # end of params
+
+
+                    full_php_output = b""
+                    while True:
+                        # read the 8 byte header
+                        header_data = php_socket.recv(8)
+                        if not header_data or len(header_data) < 8:
+                            break
+
+                        # unpack
+                        _, type, _, content_len, padding_len, _ = struct.unpack("!BBHHBB", header_data)
+
+                        # read the content based on the len in the header
+                        if content_len > 0:
+                            full_php_output += php_socket.recv(content_len)
+
+                        # skip padding bytes
+                        if padding_len > 0:
+                            php_socket.recv(padding_len)
+
+                        # if type is FCGI_END_REQ we are done
+                        if type == 3:
+                            break
+
+                    # send the http header + php output
+                    http_status_header = b"HTTP/1.1 200 OK\r\n"
+                    connection.sendall(http_status_header + full_php_output)
+            except Exception as e:
+                logger.error(f"PHP-FPM Connection Error: {e}")
+                connection.sendall(b"HTTP/1.1 502 Bad Gateway\r\n\r\nPHP-FPM Error")
 
         elif response_type == "DIRECT_RESPONSE":
             # all hardcoded fallbacks will live heer
@@ -172,7 +248,8 @@ def response_builder(path):
 
     # routing logic: check for php extension
     if file_path.endswith(".php"):
-        return "PHP_EXEC", file_path, "text/html"
+        # we return none for extra (header) becuase PHP-fpm generates its own headers
+        return "PHP_EXEC", file_path, None
 
     # static logic to handle missing files with config error page
     if not os.path.exists(file_path):

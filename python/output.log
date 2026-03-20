@@ -1,0 +1,75 @@
+2026-03-20 15:06:59,552 [MainThread] INFO: Server started on 127.0.0.1:8080
+2026-03-20 15:07:01,694 [Thread-1 (handle_client)] INFO: Connected by ('127.0.0.1', 45670)
+2026-03-20 15:07:01,699 [Thread-1 (handle_client)] INFO: Attempting to execute PHP: /home/electrik/repos/EchoServe/python/web/info.php
+2026-03-20 15:07:01,701 [Thread-1 (handle_client)] INFO: Close connection from ('127.0.0.1', 45670)
+2026-03-20 15:07:04,883 [Thread-2 (handle_client)] INFO: Connected by ('127.0.0.1', 45676)
+2026-03-20 15:07:04,884 [Thread-2 (handle_client)] INFO: Attempting to execute PHP: /home/electrik/repos/EchoServe/python/web/info.php
+2026-03-20 15:07:04,886 [Thread-2 (handle_client)] INFO: Close connection from ('127.0.0.1', 45676)
+2026-03-20 15:07:05,432 [Thread-3 (handle_client)] INFO: Connected by ('127.0.0.1', 45680)
+2026-03-20 15:07:05,432 [Thread-3 (handle_client)] INFO: Attempting to execute PHP: /home/electrik/repos/EchoServe/python/web/info.php
+2026-03-20 15:07:05,433 [Thread-3 (handle_client)] INFO: Close connection from ('127.0.0.1', 45680)
+2026-03-20 15:07:05,811 [Thread-4 (handle_client)] INFO: Connected by ('127.0.0.1', 45692)
+2026-03-20 15:07:05,811 [Thread-4 (handle_client)] INFO: Attempting to execute PHP: /home/electrik/repos/EchoServe/python/web/info.php
+2026-03-20 15:07:05,813 [Thread-4 (handle_client)] INFO: Close connection from ('127.0.0.1', 45692)
+2026-03-20 15:07:06,041 [Thread-5 (handle_client)] INFO: Connected by ('127.0.0.1', 45700)
+2026-03-20 15:07:06,041 [Thread-5 (handle_client)] INFO: Attempting to execute PHP: /home/electrik/repos/EchoServe/python/web/info.php
+2026-03-20 15:07:06,043 [Thread-5 (handle_client)] INFO: Close connection from ('127.0.0.1', 45700)
+2026-03-20 15:07:06,239 [Thread-6 (handle_client)] INFO: Connected by ('127.0.0.1', 45702)
+2026-03-20 15:07:06,239 [Thread-6 (handle_client)] INFO: Attempting to execute PHP: /home/electrik/repos/EchoServe/python/web/info.php
+2026-03-20 15:07:06,240 [Thread-6 (handle_client)] INFO: Close connection from ('127.0.0.1', 45702)
+2026-03-20 15:07:06,438 [Thread-7 (handle_client)] INFO: Connected by ('127.0.0.1', 45714)
+2026-03-20 15:07:06,438 [Thread-7 (handle_client)] INFO: Attempting to execute PHP: /home/electrik/repos/EchoServe/python/web/info.php
+2026-03-20 15:07:06,439 [Thread-7 (handle_client)] INFO: Close connection from ('127.0.0.1', 45714)
+2026-03-20 15:07:06,616 [Thread-8 (handle_client)] INFO: Connected by ('127.0.0.1', 45730)
+2026-03-20 15:07:06,617 [Thread-8 (handle_client)] INFO: Attempting to execute PHP: /home/electrik/repos/EchoServe/python/web/info.php
+2026-03-20 15:07:06,617 [Thread-8 (handle_client)] INFO: Close connection from ('127.0.0.1', 45730)
+2026-03-20 15:07:06,774 [Thread-9 (handle_client)] INFO: Connected by ('127.0.0.1', 45738)
+2026-03-20 15:07:06,774 [Thread-9 (handle_client)] INFO: Attempting to execute PHP: /home/electrik/repos/EchoServe/python/web/info.php
+2026-03-20 15:07:06,939 [Thread-10 (handle_client)] INFO: Connected by ('127.0.0.1', 45740)
+2026-03-20 15:07:06,939 [Thread-10 (handle_client)] INFO: Attempting to execute PHP: /home/electrik/repos/EchoServe/python/web/info.php
+2026-03-20 15:07:06,941 [Thread-10 (handle_client)] INFO: Close connection from ('127.0.0.1', 45740)
+2026-03-20 15:07:07,101 [Thread-11 (handle_client)] INFO: Connected by ('127.0.0.1', 45750)
+2026-03-20 15:07:07,101 [Thread-11 (handle_client)] INFO: Attempting to execute PHP: /home/electrik/repos/EchoServe/python/web/info.php
+2026-03-20 15:07:07,103 [Thread-11 (handle_client)] INFO: Close connection from ('127.0.0.1', 45750)
+2026-03-20 15:07:07,260 [Thread-12 (handle_client)] INFO: Connected by ('127.0.0.1', 45766)
+2026-03-20 15:07:07,260 [Thread-12 (handle_client)] INFO: Attempting to execute PHP: /home/electrik/repos/EchoServe/python/web/info.php
+2026-03-20 15:07:07,262 [Thread-12 (handle_client)] INFO: Close connection from ('127.0.0.1', 45766)
+2026-03-20 15:07:07,393 [Thread-13 (handle_client)] INFO: Connected by ('127.0.0.1', 45772)
+2026-03-20 15:07:07,393 [Thread-13 (handle_client)] INFO: Attempting to execute PHP: /home/electrik/repos/EchoServe/python/web/info.php
+2026-03-20 15:07:11,551 [Thread-14 (handle_client)] INFO: Connected by ('127.0.0.1', 60112)
+2026-03-20 15:07:11,551 [Thread-14 (handle_client)] INFO: Attempting to execute PHP: /home/electrik/repos/EchoServe/python/web/info.php
+2026-03-20 15:07:11,553 [Thread-14 (handle_client)] INFO: Close connection from ('127.0.0.1', 60112)
+2026-03-20 15:07:14,144 [Thread-15 (handle_client)] INFO: Connected by ('127.0.0.1', 60118)
+2026-03-20 15:07:14,144 [Thread-15 (handle_client)] INFO: Attempting to execute PHP: /home/electrik/repos/EchoServe/python/web/info.php
+2026-03-20 15:07:14,146 [Thread-15 (handle_client)] INFO: Close connection from ('127.0.0.1', 60118)
+2026-03-20 15:07:14,743 [Thread-16 (handle_client)] INFO: Connected by ('127.0.0.1', 60126)
+2026-03-20 15:07:14,744 [Thread-16 (handle_client)] INFO: Attempting to execute PHP: /home/electrik/repos/EchoServe/python/web/info.php
+2026-03-20 15:07:14,745 [Thread-16 (handle_client)] INFO: Close connection from ('127.0.0.1', 60126)
+2026-03-20 15:07:16,067 [Thread-17 (handle_client)] INFO: Connected by ('127.0.0.1', 60140)
+2026-03-20 15:07:16,067 [Thread-17 (handle_client)] INFO: Attempting to execute PHP: /home/electrik/repos/EchoServe/python/web/info.php
+2026-03-20 15:07:16,069 [Thread-17 (handle_client)] INFO: Close connection from ('127.0.0.1', 60140)
+2026-03-20 15:07:19,825 [Thread-18 (handle_client)] INFO: Connected by ('127.0.0.1', 60142)
+2026-03-20 15:07:19,825 [Thread-18 (handle_client)] INFO: Attempting to execute PHP: /home/electrik/repos/EchoServe/python/web/info.php
+2026-03-20 15:07:19,827 [Thread-18 (handle_client)] INFO: Close connection from ('127.0.0.1', 60142)
+2026-03-20 15:07:21,257 [Thread-19 (handle_client)] INFO: Connected by ('127.0.0.1', 41848)
+2026-03-20 15:07:21,257 [Thread-19 (handle_client)] INFO: Attempting to execute PHP: /home/electrik/repos/EchoServe/python/web/info.php
+2026-03-20 15:07:21,259 [Thread-19 (handle_client)] INFO: Close connection from ('127.0.0.1', 41848)
+2026-03-20 15:07:22,008 [Thread-20 (handle_client)] INFO: Connected by ('127.0.0.1', 41864)
+2026-03-20 15:07:22,008 [Thread-20 (handle_client)] INFO: Attempting to execute PHP: /home/electrik/repos/EchoServe/python/web/info.php
+2026-03-20 15:07:22,009 [Thread-20 (handle_client)] INFO: Close connection from ('127.0.0.1', 41864)
+2026-03-20 15:07:31,287 [Thread-21 (handle_client)] INFO: Connected by ('127.0.0.1', 55372)
+2026-03-20 15:07:31,288 [Thread-21 (handle_client)] INFO: Close connection from ('127.0.0.1', 55372)
+2026-03-20 15:07:31,360 [Thread-22 (handle_client)] INFO: Connected by ('127.0.0.1', 55384)
+2026-03-20 15:07:31,361 [Thread-22 (handle_client)] INFO: Close connection from ('127.0.0.1', 55384)
+2026-03-20 15:07:31,362 [Thread-23 (handle_client)] INFO: Connected by ('127.0.0.1', 55396)
+2026-03-20 15:07:31,362 [Thread-24 (handle_client)] INFO: Connected by ('127.0.0.1', 55408)
+2026-03-20 15:07:31,362 [Thread-25 (handle_client)] INFO: Connected by ('127.0.0.1', 55416)
+2026-03-20 15:07:31,363 [Thread-26 (handle_client)] INFO: Connected by ('127.0.0.1', 55428)
+2026-03-20 15:07:31,363 [Thread-24 (handle_client)] INFO: Close connection from ('127.0.0.1', 55408)
+2026-03-20 15:07:31,363 [Thread-25 (handle_client)] INFO: Close connection from ('127.0.0.1', 55416)
+2026-03-20 15:07:31,364 [Thread-26 (handle_client)] INFO: Close connection from ('127.0.0.1', 55428)
+2026-03-20 15:07:31,364 [Thread-23 (handle_client)] INFO: Close connection from ('127.0.0.1', 55396)
+2026-03-20 15:07:31,773 [Thread-27 (handle_client)] INFO: Connected by ('127.0.0.1', 55436)
+2026-03-20 15:07:31,773 [Thread-28 (handle_client)] INFO: Connected by ('127.0.0.1', 55438)
+2026-03-20 15:07:31,774 [Thread-27 (handle_client)] INFO: Close connection from ('127.0.0.1', 55436)
+2026-03-20 15:07:31,774 [Thread-28 (handle_client)] INFO: Close connection from ('127.0.0.1', 55438)
